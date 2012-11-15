@@ -17,11 +17,13 @@ class Welcome extends CI_Controller {
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
-	public function index()
-	{
-		$this->load->view('welcome_message');
+	public function index() {
+		//echo 'I live!';
+        $this->load->view('welcome_message');
 	}
+    
+    
 }
 
-/* End of file welcome.php */
-/* Location: ./application/controllers/welcome.php */
+/* End of file sqlreports.php */
+/* Location: ./application/controllers/sqlreports.php */
