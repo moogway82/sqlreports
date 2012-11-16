@@ -1,0 +1,8 @@
+SQL Reports
+===========
+
+A really basic tool to create table-based reports based on saved SQL queries.
+
+Built using CodeIgnighter and jQuery UI Grids.
+
+Very VERY work-in-progress, may never finish it, I'm a bit lazy like that...
