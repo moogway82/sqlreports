@@ -29,6 +29,18 @@ class SQLReports extends CI_Controller {
         $this->load->view('welcome', $data);
 	}
     
+    public function reports_json() {
+        $reportsQuery = $this->db->get('report');
+        $reports = array();
+        foreach($reportsQuery->result_array() as $row) {
+            $reports[] = $row['name'];
+        }
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($reports));
+        
+    }
+    
     /**
      *  This is the controller to just show the report
      *
@@ -40,17 +52,43 @@ class SQLReports extends CI_Controller {
     
     public function viewreport($report = FALSE) {
         if(!$report) { exit(0); }
-        
-        $reportData = $this->db->get_where('report', array('name' => $report));
+        $pageData = $this->runSQL($report, true);
+        $this->load->view('read_report', $pageData);
+    }
+    
+    /**
+     *  To avoid redundancy, this function returns the data for the SQL.  It can return just the fields or all the data.
+     *
+     **/
+    
+    private function runSQL($report, $justFields = FALSE) {
+        $this->db->select('report.notes, report.name AS rname, report.sql, database.connection, database.database');
+        $this->db->from('report');
+        $this->db->where('report.name', $report);
+        $this->db->join('database', 'database.id = report.database', 'left');
+        $reportData = $this->db->get();
         foreach($reportData->result_array() as $row) {
+            //log_message('debug', print_r($row, true));
             $sql = $row['sql'];
             $pageData['desc'] = $row['notes'];
-            $pageData['name'] = $row['name'];
+            $pageData['name'] = $row['rname'];
             $pageData['sql'] = $sql;
+            $connection = $row['connection'];
+            $database = $row['database'];
         }
-        $pageData['queryResult'] = $this->db->query($sql);
-        $pageData['fields'] = $pageData['queryResult']->list_fields();
-        $this->load->view('read_report', $pageData);
+        $dsn = "mysql://$connection/$database";
+        $otherDB = $this->load->database($dsn, TRUE);
+        if($justFields) {
+            /* Should check the SQL for a LIMIT statement, if not there, then add one to return only 1 row and not waste a query. */
+            $pageData['queryResult'] = $otherDB->query($sql);
+            $pageData['fields'] = $pageData['queryResult']->list_fields();
+            
+            log_message('debug', print_r($pageData['fields'], true));
+            $pageData['numRows'] = $pageData['queryResult']->num_rows;
+        } else {
+            $pageData['queryResult'] = $otherDB->query($sql);
+        }
+        return $pageData;
     }
     
     /**
@@ -67,14 +105,11 @@ class SQLReports extends CI_Controller {
     
     public function tabledata($report = FALSE) {
         if(!$report) { exit(0); }
-            
-        $reportData = $this->db->get_where('report', array('name' => $report));
-        foreach($reportData->result_array() as $row) {
-            $sql = $row['sql'];
-        }   
-        $data['queryResult'] = $this->db->query($sql);
-        $sqlQuery = $this->db->query($sql);
         
+        $runQuery = $this->runSQL($report);
+        $sqlQuery = $runQuery['queryResult'];
+        
+        log_message('debug', print_r($sqlQuery, true));
         $rows = array();
         foreach($sqlQuery->result_array() as $sqlRow) {
             $sqlRowVals = array_values($sqlRow);
