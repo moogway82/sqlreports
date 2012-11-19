@@ -72,12 +72,22 @@ class SQLReports extends CI_Controller {
             $sql = $row['sql'];
             $pageData['desc'] = $row['notes'];
             $pageData['name'] = $row['rname'];
-            $pageData['sql'] = $sql;
+            
             $connection = $row['connection'];
             $database = $row['database'];
         }
         $dsn = "mysql://$connection/$database";
         $otherDB = $this->load->database($dsn, TRUE);
+        $parsedResults = $this->parseVars($sql);
+        $sql = $parsedResults[0];
+        $pageData['sql'] = $sql;
+        if(count($parsedResults) > 1) {
+            $pageData['varFields'] = $parsedResults[1];
+            $pageData['varValues'] = $parsedResults[2];
+        } else {
+            $pageData['varFields'] = array();
+            $pageData['varValues'] = array();
+        }
         if($justFields) {
             /* Should check the SQL for a LIMIT statement, if not there, then add one to return only 1 row and not waste a query. */
             $pageData['queryResult'] = $otherDB->query($sql);
@@ -155,6 +165,36 @@ EOT;
         
         // echo $testData;
     }
+    
+    /**
+     *  Helper function to replace all the moustached placeholders in the SQL query.  Everything gets surrounded by quotes in the SQL, hope
+     *  that's ok?
+     *  
+     */
+    
+    private function parseVars($sql) {
+        $result = preg_match_all('/{{([a-zA-Z_\-]+)\|("?[^"}]+"?)}}/', $sql, $matches);
+        if($result > 0) {
+            //print_r($matches); exit(0);
+            $placeholders = $matches[0];
+            $varNames = $matches[1];
+            $varValues = $matches[2];
+            for($i = 0; $i < count($placeholders); $i++) {
+                //print_r($_REQUEST); exit(0);
+                if(array_key_exists($varNames[$i], $_REQUEST)) {
+                    $sql = str_replace($placeholders[$i], $_REQUEST["$varNames[$i]"], $sql);
+                } else {
+                    $sql = str_replace($placeholders[$i], $varValues[$i], $sql);
+                }
+                
+            }
+            //print_r($sql); exit(0);
+            return array($sql, $varNames, $varValues);
+        } else {
+            return array($sql);    
+        }
+    }
+    
 }
 
 /* End of file sqlreports.php */

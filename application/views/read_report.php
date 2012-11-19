@@ -21,9 +21,9 @@ html, body {
 <script type="text/javascript">
 $(function(){ 
     $("#list").jqGrid({
-        url:'<?=site_url('/sqlreports/tabledata').'/'.$this->uri->segment(3)?>',
-        shrinkToFit: true,
-        /* width: 300, */
+        url:'<?=site_url('/sqlreports/tabledata').'/'.$this->uri->segment(3)."?".$_SERVER['QUERY_STRING']?>',
+        /*shrinkToFit: true,*/
+        width: 960,
         height: 'auto',
         datatype: 'json',
         mtype: 'GET',
@@ -56,18 +56,24 @@ $(function(){
         {}  // view options
     ); */
     
-    $.getJSON('http://127.0.0.1:8888/sqlreports/index.php/sqlreports/reports_json', function(data) {
+    $.getJSON('<?=site_url("/sqlreports/reports_json")?>', function(data) {
         console.log(data);
         for(i = 0; i < data.length; i++) {
             $('#reportsList').append('<option value="'+data[i]+'">'+data[i]+'</option>');
         }
         $('#reportsList').change(function() {
-            window.location.href = "http://127.0.0.1:8888/sqlreports/index.php/sqlreports/viewreport/" + $(this).val();
+            window.location.href = "<?=site_url("/sqlreports/viewreport")?>/" + $(this).val();
         })
     })
     
     $('#showsql').click(function() {
-        $('#sql').slideDown();
+        if($('#sql').is(':visible')) {
+            $('#sql').slideUp();
+            $(this).html('Show SQL');
+        } else {
+            $('#sql').slideDown();
+            $(this).html('Hide SQL');
+        }
     })
     
 });
@@ -90,6 +96,15 @@ $(function(){
     <div class="report-desc">
         <p><?=$desc?></p>    
     </div>
+    <form action="<?php site_url($this->uri->uri_string())?>" >
+        <?php foreach($varFields as $varField): ?>
+        <div>
+            <label><?=$varField?></label>
+            <input name="<?=$varField?>" />
+        </div>
+        <?php endforeach; ?>
+        <button type="submit">Update</botton>
+    </form>
     <button id="showsql">Show SQL</button>
     <div id="sql">
         <pre><?=$sql?></pre>
