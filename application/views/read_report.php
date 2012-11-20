@@ -34,7 +34,7 @@ $(function(){
         ],
         colModel:[
             <?php foreach($fields as $field): ?>
-                {name:'<?=$field?>', width: 100, index:'id'},            
+                {name:'<?=$field?>', width: 100, index:'<?=$field?>     '},            
             <?php endforeach; ?>
         ],
         pager: '#pager',

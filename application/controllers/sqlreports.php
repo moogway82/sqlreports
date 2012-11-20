@@ -96,6 +96,19 @@ class SQLReports extends CI_Controller {
             log_message('debug', print_r($pageData['fields'], true));
             $pageData['numRows'] = $pageData['queryResult']->num_rows;
         } else {
+            if(isset($_REQUEST['sidx'])) {
+                $sidx = $_REQUEST['sidx'];   
+            } else {
+                $sidx = false;
+            }
+            if(isset($_REQUEST['sord'])) {
+                $sord = $_REQUEST['sord'];
+            } else {
+                $sord = false;
+            }
+            if($sord && $sidx) {
+                $sql = $this->addSorting($sql, $sidx, $sord);
+            }
             $pageData['queryResult'] = $otherDB->query($sql);
         }
         return $pageData;
@@ -111,7 +124,6 @@ class SQLReports extends CI_Controller {
      *      - Also get the description
      *      - DONE!
      **/
-    
     
     public function tabledata($report = FALSE) {
         if(!$report) { exit(0); }
@@ -193,6 +205,21 @@ EOT;
         } else {
             return array($sql);    
         }
+    }
+    
+    private function addSorting($sql, $sidx, $sord) {
+        $sql = str_replace(';', '', $sql);
+        if(stripos($sql, "ORDER") === FALSE) {
+            $orderByLine = " ORDER BY ".$sidx." ".$sord;
+            $limitByStart = stripos($sql, "LIMIT");
+            if($limitByStart !== FALSE) {
+                $sql = substr($sql, 0, $limitByStart - 1).$orderByLine." ".substr($sql, $limitByStart, strlen($sql));
+            } else {
+                $sql = $sql.$orderByLine;
+            }
+        }
+        //print_r($sql); exit(0);
+        return $sql;
     }
     
 }
