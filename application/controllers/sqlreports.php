@@ -90,7 +90,12 @@ class SQLReports extends CI_Controller {
         }
         if($justFields) {
             /* Should check the SQL for a LIMIT statement, if not there, then add one to return only 1 row and not waste a query. */
+            //echo("sql:"); print_r($sql); exit(0);
             $pageData['queryResult'] = $otherDB->query($sql);
+            //echo("queryResult:"); print_r($pageData['queryResult']); exit(0);
+            if(!$pageData['queryResult']) {
+                echo("No results from SQL:\n".$sql."\n"); print_r($pageData['queryResult']); exit(0);
+            }
             $pageData['fields'] = $pageData['queryResult']->list_fields();
             
             log_message('debug', print_r($pageData['fields'], true));
@@ -189,19 +194,27 @@ EOT;
         if($result > 0) {
             //print_r($matches); exit(0);
             $placeholders = $matches[0];
-            $varNames = $matches[1];
-            $varValues = $matches[2];
+            //$varNames = $matches[1];
+            //$varValues = $matches[2];
+
             for($i = 0; $i < count($placeholders); $i++) {
                 //print_r($_REQUEST); exit(0);
-                if(array_key_exists($varNames[$i], $_REQUEST)) {
-                    $sql = str_replace($placeholders[$i], $_REQUEST["$varNames[$i]"], $sql);
+                preg_match('/{{([a-zA-Z_\-]+)\|("?[^"}]+"?)}}/', $placeholders[$i], $matches);
+                $varName = $matches[1];
+                $varValue = $matches[2];
+                //print_r($varNames);
+                //print_r($varValues);
+                //exit(0);
+                if(array_key_exists($varName, $_REQUEST)) {
+                    $sql = str_replace($placeholders[$i], $_REQUEST["$varName"], $sql);
                 } else {
-                    $sql = str_replace($placeholders[$i], $varValues[$i], $sql);
+                    $sql = str_replace($placeholders[$i], $varValue, $sql);
                 }
-                
+                $varNames[] = $varName;
+                $varValues[] = $varValue;
             }
             //print_r($sql); exit(0);
-            return array($sql, $varNames, $varValues);
+            return array($sql, array_unique($varNames), array_unique($varValues));
         } else {
             return array($sql);    
         }
