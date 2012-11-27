@@ -3,10 +3,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$name?></title>
- 
+
+<link rel="stylesheet" type="text/css" media="screen" href="<?=base_url()?>css/sqlreports.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="<?=base_url()?>css/ui-lightness/jquery-ui-1.8.19.custom.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="<?=base_url()?>css/ui.jqgrid.css" />
- 
+
 <style type="text/css">
 html, body {
     margin: 0;
@@ -89,29 +90,39 @@ $(function(){
 </head>
 
 <body>
-    <select id="reportsList">
-        <option value="">Select Report...</option>
-    </select>
-    <h1><?=$name?></h1>
-    <div class="report-desc">
-        <p><?=$desc?></p>    
-    </div>
-    <form action="<?php site_url($this->uri->uri_string())?>" >
-        <?php foreach($varFields as $varField): ?>
-        <div>
-            <label><?=$varField?></label>
-            <input name="<?=$varField?>" />
+    <div class="container">
+        <div class="header">
+            <select id="reportsList">
+                <option value="">Select Report...</option>
+            </select>
         </div>
-        <?php endforeach; ?>
-        <button type="submit">Update</botton>
-    </form>
-    <button id="showsql">Show SQL</button>
-    <div id="sql">
-        <pre><?=$sql?></pre>
+        <div class="main">
+            <h1><?=$name?></h1>
+            <div class="report-desc">
+                <p><?=$desc?></p>    
+            </div>
+            <form action="<?php site_url($this->uri->uri_string())?>" >
+                <?php sort($varFields); foreach($varFields as $varField): ?>
+                <div class="field">
+                    <label><?=$varField?></label>
+                    <input name="<?=$varField?>" value="<?=$varValues["$varField"]?>" />
+                </div>
+                <?php endforeach; ?>
+                <div class="field submit">
+                    <button class="widebutton" type="submit">Update</botton>
+                </div>
+            </form>
+            
+            <table id="list">
+                <tr><td/></tr>
+            </table> 
+            <!-- <div id="pager"></div> -->
+            
+            <button id="showsql">Show SQL</button>
+            <div id="sql">
+                <pre><?=$sql?></pre>
+            </div>
+        </div>
     </div>
-    <table id="list">
-        <tr><td/></tr>
-    </table> 
-    <!-- <div id="pager"></div> -->
 </body>
 </html>

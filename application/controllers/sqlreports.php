@@ -190,7 +190,7 @@ EOT;
      */
     
     private function parseVars($sql) {
-        $result = preg_match_all('/{{([a-zA-Z_\-]+)\|("?[^"}]+"?)}}/', $sql, $matches);
+        $result = preg_match_all('/{{([a-zA-Z0-9_\-]+)\|("?[^"}]+"?)}}/', $sql, $matches);
         if($result > 0) {
             //print_r($matches); exit(0);
             $placeholders = $matches[0];
@@ -199,19 +199,21 @@ EOT;
 
             for($i = 0; $i < count($placeholders); $i++) {
                 //print_r($_REQUEST); exit(0);
-                preg_match('/{{([a-zA-Z_\-]+)\|("?[^"}]+"?)}}/', $placeholders[$i], $matches);
+                preg_match('/{{([a-zA-Z0-9_\-]+)\|("?[^"}]+"?)}}/', $placeholders[$i], $matches);
+                //print_r($matches);
                 $varName = $matches[1];
                 $varValue = $matches[2];
-                //print_r($varNames);
-                //print_r($varValues);
+                //print_r($varName);
+                //print_r($varValue);
                 //exit(0);
                 if(array_key_exists($varName, $_REQUEST)) {
                     $sql = str_replace($placeholders[$i], $_REQUEST["$varName"], $sql);
+                    $varValues["$varName"] = $_REQUEST["$varName"];
                 } else {
                     $sql = str_replace($placeholders[$i], $varValue, $sql);
+                    $varValues["$varName"] = $varValue;
                 }
                 $varNames[] = $varName;
-                $varValues[] = $varValue;
             }
             //print_r($sql); exit(0);
             return array($sql, array_unique($varNames), array_unique($varValues));
