@@ -33,7 +33,7 @@ class SQLReports extends CI_Controller {
         $reportsQuery = $this->db->get('report');
         $reports = array();
         foreach($reportsQuery->result_array() as $row) {
-            $reports[] = $row['name'];
+            $reports[] = array('name' => $row['name'], 'slug' => $row['slug']);
         }
         $this->output
             ->set_content_type('application/json')
@@ -62,9 +62,9 @@ class SQLReports extends CI_Controller {
      **/
     
     private function runSQL($report, $justFields = FALSE) {
-        $this->db->select('report.notes, report.name AS rname, report.sql, database.connection, database.database');
+        $this->db->select('report.notes, report.name AS rname, report.slug, report.sql, database.connection, database.database');
         $this->db->from('report');
-        $this->db->where('report.name', $report);
+        $this->db->where('report.slug', $report);
         $this->db->join('database', 'database.id = report.database', 'left');
         $reportData = $this->db->get();
         foreach($reportData->result_array() as $row) {
@@ -72,6 +72,7 @@ class SQLReports extends CI_Controller {
             $sql = $row['sql'];
             $pageData['desc'] = $row['notes'];
             $pageData['name'] = $row['rname'];
+            $pageData['slug'] = $row['slug'];
             
             $connection = $row['connection'];
             $database = $row['database'];

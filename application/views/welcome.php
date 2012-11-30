@@ -10,7 +10,7 @@
     <p>Select a report:</p>
     <ol>
         <?php foreach ($query->result_array() as $row): ?>
-        <li><a href="<?=site_url('/sqlreports/viewreport/'.$row['name'])?>"><?php echo $row['name']; ?></a></li>
+        <li><a href="<?=site_url('/sqlreports/viewreport/'.$row['slug'])?>"><?php echo $row['name']; ?></a></li>
         <?php endforeach; ?>
     </ol>
 </body>

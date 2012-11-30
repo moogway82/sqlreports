@@ -60,7 +60,7 @@ $(function(){
     $.getJSON('<?=site_url("/sqlreports/reports_json")?>', function(data) {
         console.log(data);
         for(i = 0; i < data.length; i++) {
-            $('#reportsList').append('<option value="'+data[i]+'">'+data[i]+'</option>');
+            $('#reportsList').append('<option value="'+data[i].slug+'">'+data[i].name+'</option>');
         }
         $('#reportsList').change(function() {
             window.location.href = "<?=site_url("/sqlreports/viewreport")?>/" + $(this).val();
