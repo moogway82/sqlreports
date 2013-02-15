@@ -7,6 +7,8 @@
 <link rel="stylesheet" type="text/css" media="screen" href="<?=base_url()?>css/sqlreports.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="<?=base_url()?>css/ui-lightness/jquery-ui-1.8.19.custom.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="<?=base_url()?>css/ui.jqgrid.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="<?=base_url()?>css/jquery-ui-timepicker-addon.css" />
+
 
 <style type="text/css">
 html, body {
@@ -18,6 +20,9 @@ html, body {
 <script src="<?=base_url()?>js/jquery-1.7.2.min.js" type="text/javascript"></script>
 <script src="<?=base_url()?>js/i18n/grid.locale-en.js" type="text/javascript"></script>
 <script src="<?=base_url()?>js/jquery.jqGrid.min.js" type="text/javascript"></script>
+<script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+<script src="<?=base_url()?>js/jquery-ui-timepicker-addon.js" type="text/javascript"></script>
+
 
 <script type="text/javascript">
 $(function(){ 
@@ -77,6 +82,10 @@ $(function(){
         }
     })
     
+    $('input[type=datetime]').datetimepicker({
+        dateFormat: 'yy-mm-dd'
+    });
+    
 });
 
 </script>
@@ -105,7 +114,11 @@ $(function(){
                 <?php sort($varFields); foreach($varFields as $varField): ?>
                 <div class="field">
                     <label><?=$varField?></label>
-                    <input name="<?=$varField?>" value="<?=$varValues["$varField"]?>" />
+                    <?php if(preg_match('/\d{4}-\d{1,2}-\d{1,2} \d{2}:\d{2}(:\d{2})?/', $varValues["$varField"]) === 1): ?>
+                        <input name="<?=$varField?>" value="<?=$varValues["$varField"]?>" type="datetime" />
+                    <?php else: ?>
+                        <input name="<?=$varField?>" value="<?=$varValues["$varField"]?>" />
+                    <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
                 <?php if(count($varFields) > 0): ?>
@@ -114,7 +127,7 @@ $(function(){
                 </div>
                 <?php endif; ?>
             </form>
-            
+
             <table id="list">
                 <tr><td/></tr>
             </table> 
