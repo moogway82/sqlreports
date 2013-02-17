@@ -123,7 +123,7 @@ $(function(){
                 <?php endforeach; ?>
                 <?php if(count($varFields) > 0): ?>
                 <div class="field submit">
-                    <button class="widebutton" type="submit">Update</botton>
+                    <button class="widebutton" type="submit">Update</button>
                 </div>
                 <?php endif; ?>
             </form>
